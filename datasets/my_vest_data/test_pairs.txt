@@ -1,0 +1,2 @@
+suit_man.png safety_vest.png
+construction.jpg safety_vest.png

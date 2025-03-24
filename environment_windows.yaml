@@ -1,0 +1,32 @@
+name: idm
+channels:
+  - defaults
+  - conda-forge
+  - nvidia
+  - pytorch
+dependencies:
+  - python=3.10
+  - pip=23.3
+  - pytorch=2.0.1
+  - torchvision=0.15.2
+  - torchaudio=2.0.2
+  - pytorch-cuda=11.8
+
+  - pip:
+      - accelerate==0.25.0
+      - torchmetrics==1.2.1
+      - tqdm==4.66.1
+      - transformers==4.36.2   
+      - diffusers==0.25.0
+      - einops==0.7.0
+      - bitsandbytes==0.39.0
+      - scipy==1.11.1
+      - opencv-python
+      - gradio==4.24.0
+      - fvcore
+      - cloudpickle
+      - omegaconf
+      - pycocotools
+      - basicsr
+      - av
+      - onnxruntime==1.16.2
