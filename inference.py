@@ -166,7 +166,10 @@ class VitonHDTestDataset(data.Dataset):
         ).resize((self.width,self.height))
         image = self.transform(im_pil_big)
 
+        # questionmark
         mask = Image.open(os.path.join(self.dataroot, self.phase, "agnostic-mask", im_name.replace('.jpg','_mask.png'))).resize((self.width,self.height))
+        mask = Image.open(os.path.join(self.dataroot, self.phase, "agnostic-mask", im_name.replace('.png','_mask.png'))).resize((self.width,self.height))
+        
         mask = self.toTensor(mask)
         mask = mask[:1]
         mask = 1-mask

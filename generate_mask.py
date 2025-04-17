@@ -37,7 +37,6 @@ def generate_upper_body_mask(image_path, output_path):
     x_min = int(min(x_coords) * w)
     x_max = int(max(x_coords) * w)
 
-    # 상체 영역을 흰색(255)으로
     mask[y_min:y_max, x_min:x_max] = 255
 
     Image.fromarray(mask).save(output_path)
@@ -46,10 +45,15 @@ def generate_upper_body_mask(image_path, output_path):
 
 generate_upper_body_mask(
     "datasets/my_vest_data/test/image/suit_man.png",
+    "datasets/my_vest_data/test/agnostic-mask/suit_man_mask.png"
+)
+
+generate_upper_body_mask(
+    "datasets/my_vest_data/test/image/suit_man.png",
     "datasets/my_vest_data/test/agnostic-mask/suit_man.png"
 )
 
 generate_upper_body_mask(
-    "datasets/my_vest_data/test/image/construction.jpg",
-    "datasets/my_vest_data/test/agnostic-mask/construction.jpg"
+    "datasets/my_vest_data/test/image/model.jpg",
+    "datasets/my_vest_data/test/agnostic-mask/model_mask.png"
 )
