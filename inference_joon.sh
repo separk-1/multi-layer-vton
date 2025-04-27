@@ -1,0 +1,1 @@
+accelerate launch inference.py --pretrained_model_name_or_path "yisol/IDM-VTON" --width 576 --height 768 --num_inference_steps 20 --output_dir "result" --unpaired --data_dir "./datasets/my_vest_data" --test_batch_size 1 --guidance_scale 2.0
