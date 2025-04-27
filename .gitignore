@@ -2,3 +2,4 @@ ckpt/*
 !ckpt/.gitkeep
 datasets/VITON-HD/*
 generate_dummy/*
+detectron2/projects/DensePose/ckpt/model_final_162be9.pkl
