@@ -30,3 +30,7 @@ dependencies:
       - basicsr
       - av
       - onnxruntime==1.16.2
+      - lpips
+      - git+https://github.com/openai/CLIP.git
+      - pytorch_fid
+
