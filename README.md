@@ -1,222 +1,156 @@
+# IDM-VTON (Modified and Extended for Multi-Layered Virtual Try-On)
 
 <div align="center">
 <h1>IDM-VTON: Improving Diffusion Models for Authentic Virtual Try-on in the Wild</h1>
-
 <a href='https://idm-vton.github.io'><img src='https://img.shields.io/badge/Project-Page-green'></a>
 <a href='https://arxiv.org/abs/2403.05139'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
-<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-yellow'></a>
-<a href='https://huggingface.co/yisol/IDM-VTON'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue'></a>
-
-
+<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Demo-yellow'></a>
+<a href='https://huggingface.co/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Model-blue'></a>
 </div>
 
-This is the official implementation of the paper ["Improving Diffusion Models for Authentic Virtual Try-on in the Wild"](https://arxiv.org/abs/2403.05139).
-
-Star ⭐ us if you like it!
+> **Note**: This project was conducted as part of the **10-623 Generative AI** course at **Carnegie Mellon University**.  
+> ([Course website](https://www.cs.cmu.edu/~mgormley/courses/10423/))
 
 ---
 
+## Project Overview
 
-![teaser2](assets/teaser2.png)&nbsp;
-![teaser](assets/teaser.png)&nbsp;
+This project builds on ["Improving Diffusion Models for Authentic Virtual Try-on in the Wild"](https://arxiv.org/abs/2403.05139) (IDM-VTON).  
+We **reproduce** the original IDM-VTON pipeline and **extend** it to accommodate **multi-layered clothing** scenarios, enabling **garment-on-garment** virtual try-on.
 
+Our main contributions:
+- Reproduced the baseline results of IDM-VTON.
+- Modified the masking and inference pipeline to handle layered garments.
+- Adapted the code for customized datasets.
 
+---
 
-## Requirements
+## Setup Instructions
 
-```
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/yisol/IDM-VTON.git
 cd IDM-VTON
+```
 
-conda env create -f environment.yaml
+### 2. Environment Setup (Windows)
+
+```bash
+conda env create -f environment_windows.yaml
 conda activate idm
+
+pip install huggingface_hub==0.20.3 --force-reinstall
+
+pip uninstall torch torchvision torchaudio -y
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+pip install mediapipe
 ```
 
-## Data preparation
+### 3. Preprocess Data (Optional)
 
-### VITON-HD
-You can download VITON-HD dataset from [VITON-HD](https://github.com/shadow2496/VITON-HD).
+For customized datasets:
 
-After download VITON-HD dataset, move vitonhd_test_tagged.json into the test folder, and move vitonhd_train_tagged.json into the train folder.
-
-Structure of the Dataset directory should be as follows.
-
+```bash
+python resizing.py          # Resize images
+python generate_mask.py     # Generate agnostic masks
+python generate_pose.py     # Generate densepose information
 ```
 
-train
-|-- image
-|-- image-densepose
-|-- agnostic-mask
-|-- cloth
-|-- vitonhd_train_tagged.json
+### 4. Download Pretrained Model
 
-test
-|-- image
-|-- image-densepose
-|-- agnostic-mask
-|-- cloth
-|-- vitonhd_test_tagged.json
+We use the official pretrained model hosted on Hugging Face:
 
+```bash
+--pretrained_model_name_or_path "yisol/IDM-VTON"
 ```
 
-### DressCode
-You can download DressCode dataset from [DressCode](https://github.com/aimagelab/dress-code).
+Alternatively, manually download it from [here](https://huggingface.co/yisol/IDM-VTON).
 
-We provide pre-computed densepose images and captions for garments [here](https://kaistackr-my.sharepoint.com/:u:/g/personal/cpis7_kaist_ac_kr/EaIPRG-aiRRIopz9i002FOwBDa-0-BHUKVZ7Ia5yAVVG3A?e=YxkAip).
+### 5. Download Dataset (Optional - VITON-HD)
 
-We used [detectron2](https://github.com/facebookresearch/detectron2) for obtaining densepose images, refer [here](https://github.com/sangyun884/HR-VITON/issues/45) for more details.
+If you wish to use the official VITON-HD dataset:
 
-After download the DressCode dataset, place image-densepose directories and caption text files as follows.
+```bash
+mkdir ~/.kaggle
+mv ~/Downloads/kaggle.json ~/.kaggle/
+chmod 600 ~/.kaggle/kaggle.json
 
-```
-DressCode
-|-- dresses
-    |-- images
-    |-- image-densepose
-    |-- dc_caption.txt
-    |-- ...
-|-- lower_body
-    |-- images
-    |-- image-densepose
-    |-- dc_caption.txt
-    |-- ...
-|-- upper_body
-    |-- images
-    |-- image-densepose
-    |-- dc_caption.txt
-    |-- ...
+pip install kaggle
+
+kaggle datasets download -d marquis03/high-resolution-viton-zalando-dataset
+unzip high-resolution-viton-zalando-dataset.zip -d viton_hd_dataset
 ```
 
+---
 
-## Training
+## Folder Structure
 
-
-### Preparation
-
-Download pre-trained ip-adapter for sdxl(IP-Adapter/sdxl_models/ip-adapter-plus_sdxl_vit-h.bin) and image encoder(IP-Adapter/models/image_encoder) [here](https://github.com/tencent-ailab/IP-Adapter).
+Organize your dataset as follows:
 
 ```
-git clone https://huggingface.co/h94/IP-Adapter
+datasets/
+└── my_vest_data/
+    ├── test/
+        ├── image/
+        ├── image-densepose/
+        ├── agnostic-mask/
+        ├── cloth/
+        └── vitonhd_test_tagged.json
 ```
 
-Move ip-adapter to ckpt/ip_adapter, and image encoder to ckpt/image_encoder.
+- `image/`: Person images
+- `image-densepose/`: DensePose outputs
+- `agnostic-mask/`: Customized body masks
+- `cloth/`: Target clothing images
+- `vitonhd_test_tagged.json`: Metadata for matching images and clothes
 
-Start training using python file with arguments,
-
-```
-accelerate launch train_xl.py \
-    --gradient_checkpointing --use_8bit_adam \
-    --output_dir=result --train_batch_size=6 \
-    --data_dir=DATA_DIR
-```
-
-or, you can simply run with the script file.
-
-```
-sh train_xl.sh
-```
-
+---
 
 ## Inference
 
+After setup, run:
 
-### VITON-HD
-
-Inference using python file with arguments,
-
-```
+```bash
 accelerate launch inference.py \
-    --width 768 --height 1024 --num_inference_steps 30 \
+    --pretrained_model_name_or_path "yisol/IDM-VTON" \
+    --width 512 \
+    --height 768 \
+    --num_inference_steps 20 \
     --output_dir "result" \
     --unpaired \
-    --data_dir "DATA_DIR" \
-    --seed 42 \
-    --test_batch_size 2 \
+    --data_dir "./datasets/my_vest_data" \
+    --test_batch_size 1 \
     --guidance_scale 2.0
 ```
 
-or, you can simply run with the script file.
+Or simply:
 
-```
-sh inference.sh
-```
-
-### DressCode
-
-For DressCode dataset, put the category you want to generate images via category argument,
-```
-accelerate launch inference_dc.py \
-    --width 768 --height 1024 --num_inference_steps 30 \
-    --output_dir "result" \
-    --unpaired \
-    --data_dir "DATA_DIR" \
-    --seed 42 
-    --test_batch_size 2
-    --guidance_scale 2.0
-    --category "upper_body" 
+```bash
+sh inference_custom.sh
 ```
 
-or, you can simply run with the script file.
-```
-sh inference.sh
-```
+The results will be saved in the `result/` directory.
 
-## Start a local gradio demo <a href='https://github.com/gradio-app/gradio'><img src='https://img.shields.io/github/stars/gradio-app/gradio'></a>
+---
 
-Download checkpoints for human parsing [here](https://huggingface.co/spaces/yisol/IDM-VTON/tree/main/ckpt).
+## Our Extensions
 
-Place the checkpoints under the ckpt folder.
-```
-ckpt
-|-- densepose
-    |-- model_final_162be9.pkl
-|-- humanparsing
-    |-- parsing_atr.onnx
-    |-- parsing_lip.onnx
+We build on top of the original IDM-VTON implementation with the following extensions for our course project:
 
-|-- openpose
-    |-- ckpts
-        |-- body_pose_model.pth
-    
-```
+- **Baseline Reproduction**: Reproduced the baseline results of IDM-VTON faithfully.
+- **Multi-Layered Clothing Extension**: Extended the virtual try-on pipeline to accommodate garment-on-garment scenarios.
+- **Customized Agnostic Mask Generation**: Modified the masking pipeline to better handle multi-layered input.
+- **Resolution Adjustment**: Adjusted inference resolution to 512 × 768 for our dataset and experiments.
 
-
-
-
-Run the following command:
-
-```python
-python gradio_demo/app.py
-```
-
-
-
-
-
-
-## Acknowledgements
-
-
-Thanks [ZeroGPU](https://huggingface.co/zero-gpu-explorers) for providing free GPU.
-
-Thanks [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter) for base codes.
-
-Thanks [OOTDiffusion](https://github.com/levihsu/OOTDiffusion) and [DCI-VTON](https://github.com/bcmi/DCI-VTON-Virtual-Try-On) for masking generation.
-
-Thanks [SCHP](https://github.com/GoGoDuck912/Self-Correction-Human-Parsing) for human segmentation.
-
-Thanks [Densepose](https://github.com/facebookresearch/DensePose) for human densepose.
-
-
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=yisol/IDM-VTON&type=Date)](https://star-history.com/#yisol/IDM-VTON&Date)
-
-
+---
 
 ## Citation
-```
+
+If you use this work, please cite the original IDM-VTON paper:
+
+```bibtex
 @article{choi2024improving,
   title={Improving Diffusion Models for Authentic Virtual Try-on in the Wild},
   author={Choi, Yisol and Kwak, Sangkyung and Lee, Kyungmin and Choi, Hyungwon and Shin, Jinwoo},
@@ -225,9 +159,11 @@ Thanks [Densepose](https://github.com/facebookresearch/DensePose) for human dens
 }
 ```
 
-
+---
 
 ## License
-The codes and checkpoints in this repository are under the [CC BY-NC-SA 4.0 license](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 
+This project is licensed under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+
+---
 
