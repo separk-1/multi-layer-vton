@@ -1,13 +1,5 @@
 # IDM-VTON (Modified and Extended for Multi-Layered Virtual Try-On)
 
-<div align="center">
-<h1>IDM-VTON: Improving Diffusion Models for Authentic Virtual Try-on in the Wild</h1>
-<a href='https://idm-vton.github.io'><img src='https://img.shields.io/badge/Project-Page-green'></a>
-<a href='https://arxiv.org/abs/2403.05139'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
-<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Demo-yellow'></a>
-<a href='https://huggingface.co/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Model-blue'></a>
-</div>
-
 > **Note**: This project was conducted as part of the **10-623 Generative AI** course at **Carnegie Mellon University**.  
 > ([Course website](https://www.cs.cmu.edu/~mgormley/courses/10423/))
 
@@ -24,14 +16,23 @@ Our main contributions:
 - Adapted the code for customized datasets.
 
 ---
+## Original Code
+<div align="center">
+<h2>IDM-VTON: Improving Diffusion Models for Authentic Virtual Try-on in the Wild</h2>
+<a href='https://idm-vton.github.io'><img src='https://img.shields.io/badge/Project-Page-green'></a>
+<a href='https://arxiv.org/abs/2403.05139'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
+<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Demo-yellow'></a>
+<a href='https://huggingface.co/yisol/IDM-VTON'><img src='https://img.shields.io/badge/Hugging%20Face-Model-blue'></a>
+</div>
 
+---
 ## Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yisol/IDM-VTON.git
-cd IDM-VTON
+git clone https://github.com/separk-1/multi-layer-vton.git
+cd multi-layer-vton
 ```
 
 ### 2. Environment Setup (Windows)
@@ -40,7 +41,7 @@ cd IDM-VTON
 conda env create -f environment_windows.yaml
 conda activate idm
 
-pip install huggingface_hub==0.20.3 --force-reinstall
+pip install huggingface_hub==0.20.3
 
 pip uninstall torch torchvision torchaudio -y
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
@@ -48,15 +49,26 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install mediapipe
 ```
 
-### 3. Preprocess Data (Optional)
+### 3. Preprocess Data (Required for Custom Datasets)
 
-For customized datasets:
+You must generate DensePose and upper-cloth masks before running inference.
 
-```bash
-python resizing.py          # Resize images
-python generate_mask.py     # Generate agnostic masks
-python generate_pose.py     # Generate densepose information
-```
+- Step 1: Generate DensePose (pose) first.
+
+  ```bash
+  python pose_generator/detectron2/projects/DensePose/app.py
+  ```
+
+- Step 2: Then, generate upper-cloth masks.
+
+  ```bash
+  python extract_upper_cloth.py
+  ```
+
+> ⚠️ **Important:**
+> - You must run `app.py` before `extract_upper_cloth.py`.
+> - Input person images (located at `datasets/my_vest_data/test/image/`) must be resized to **576x768**.
+> - Input clothing images (located at `datasets/my_vest_data/test/cloth/`) can be of any size.
 
 ### 4. Download Pretrained Model
 
@@ -91,8 +103,8 @@ Organize your dataset as follows:
 
 ```
 datasets/
-└── my_vest_data/
-    ├── test/
+└── <DATASET_NAME>/
+    └── test/
         ├── image/
         ├── image-densepose/
         ├── agnostic-mask/
@@ -128,7 +140,7 @@ accelerate launch inference.py \
 Or simply:
 
 ```bash
-sh inference_custom.sh
+sh inference.sh
 ```
 
 The results will be saved in the `result/` directory.
@@ -139,22 +151,18 @@ The results will be saved in the `result/` directory.
 
 After generating results, you can evaluate the performance using our evaluation script.
 
-First, make sure your evaluation directory structure is organized like this:
+First, organize the evaluation directory like this:
 
 ```
 eval/
 ├── generated/
-│   └── joon.jpg
+│   └── <IMAGE_NAME>.jpg
 ├── ground_truth/
-│   └── joon.jpg
+│   └── <IMAGE_NAME>.jpg
 └── eval.py
 ```
 
-- `generated/`: Folder containing generated try-on images.
-- `ground_truth/`: Folder containing ground-truth images for comparison.
-- `eval.py`: Evaluation script.
-
-Then, run the following command:
+Then, run:
 
 ```bash
 cd eval
@@ -167,13 +175,7 @@ This script will compute:
 - CLIP-Image Similarity (Semantic Alignment)
 - FID (Image Realism)
 
-The evaluation results will be printed and saved.
-
----
-
-### Notes
-- Make sure all images in `generated/` and `ground_truth/` are resized to the same resolution before running evaluation.
-- Required packages: `lpips`, `pytorch-fid`, `openai/CLIP` (already included in environment setup).
+> ⚠️ **Note:** Make sure all images in `generated/` and `ground_truth/` are resized to the same resolution before running evaluation.
 
 ---
 
@@ -208,4 +210,3 @@ If you use this work, please cite the original IDM-VTON paper:
 This project is licensed under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 
 ---
-
