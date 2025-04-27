@@ -1,0 +1,1 @@
+detectron2/projects/DensePose/ckpt/model_final_162be9.pkl filter=lfs diff=lfs merge=lfs -text

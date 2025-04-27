@@ -177,7 +177,7 @@ After generating results, you can evaluate the performance using our evaluation 
 First, organize the evaluation directory like this:
 
 ```
-eval/
+evaluation/
 ├── generated/
 │   └── <IMAGE_NAME>.jpg
 ├── ground_truth/
@@ -188,7 +188,7 @@ eval/
 Then, run:
 
 ```bash
-cd eval
+cd evaluation
 python eval.py --ground_truth ./ground_truth --generated ./generated
 ```
 
