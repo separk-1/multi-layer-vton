@@ -135,6 +135,48 @@ The results will be saved in the `result/` directory.
 
 ---
 
+## Evaluation
+
+After generating results, you can evaluate the performance using our evaluation script.
+
+First, make sure your evaluation directory structure is organized like this:
+
+```
+eval/
+├── generated/
+│   └── joon.jpg
+├── ground_truth/
+│   └── joon.jpg
+└── benchmark.py
+```
+
+- `generated/`: Folder containing generated try-on images.
+- `ground_truth/`: Folder containing ground-truth images for comparison.
+- `benchmark.py`: Evaluation script.
+
+Then, run the following command:
+
+```bash
+cd eval
+python benchmark.py --ground_truth ./ground_truth --generated ./generated
+```
+
+This script will compute:
+- LPIPS (Perceptual Similarity)
+- SSIM (Structural Similarity)
+- CLIP-Image Similarity (Semantic Alignment)
+- FID (Image Realism)
+
+The evaluation results will be printed and saved.
+
+---
+
+### Notes
+- Make sure all images in `generated/` and `ground_truth/` are resized to the same resolution before running evaluation.
+- Required packages: `lpips`, `pytorch-fid`, `openai/CLIP` (already included in environment setup).
+
+---
+
 ## Our Extensions
 
 We build on top of the original IDM-VTON implementation with the following extensions for our course project:
