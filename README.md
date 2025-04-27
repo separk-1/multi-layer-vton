@@ -147,18 +147,18 @@ eval/
 │   └── joon.jpg
 ├── ground_truth/
 │   └── joon.jpg
-└── benchmark.py
+└── eval.py
 ```
 
 - `generated/`: Folder containing generated try-on images.
 - `ground_truth/`: Folder containing ground-truth images for comparison.
-- `benchmark.py`: Evaluation script.
+- `eval.py`: Evaluation script.
 
 Then, run the following command:
 
 ```bash
 cd eval
-python benchmark.py --ground_truth ./ground_truth --generated ./generated
+python eval.py --ground_truth ./ground_truth --generated ./generated
 ```
 
 This script will compute:
