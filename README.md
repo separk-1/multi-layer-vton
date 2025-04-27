@@ -52,24 +52,46 @@ pip install mediapipe
 
 ### 3. Preprocess Data (Required for Custom Datasets)
 
-You must generate DensePose and upper-cloth masks before running inference.
+You must generate DensePose maps and upper-cloth masks before running inference.
 
-- Step 1: Generate DensePose (pose) first.
+You can simply run:
+
+```bash
+sh preprocess.sh
+```
+
+The `preprocess.sh` file internally runs the following two steps:
+
+- Step 1: Generate DensePose (pose map):
 
   ```bash
-  python pose_generator/detectron2/projects/DensePose/app.py
+  python extract_densepose.py \
+    --config detectron2/projects/DensePose/configs/densepose_rcnn_R_50_FPN_s1x.yaml \
+    --model detectron2/projects/DensePose/ckpt/model_final_162be9.pkl \
+    --input datasets/test_joon/test/image/joon.jpg \
+    --output_dir datasets/test_joon/test/image-densepose \
+    --width 576 \
+    --height 768
   ```
 
-- Step 2: Then, generate upper-cloth masks.
+- Step 2: Generate upper-cloth masks:
 
   ```bash
-  python extract_upper_cloth.py
+  python extract_upper_cloth.py \
+    --input datasets/test_joon/test/image/joon.jpg \
+    --output_jpg datasets/test_joon/test/agnostic-mask/joon.jpg \
+    --output_png datasets/test_joon/test/agnostic-mask/joon_mask.png \
+    --densepose datasets/test_joon/test/image-densepose/I.npy \
+    --naturality 1 \
+    --ratio 0.1 \
+    --vest 1 \
+    --vest_padding 10
   ```
 
-> ⚠️ **Important:**
-> - You must run `app.py` before `extract_upper_cloth.py`.
-> - Input person images (located at `datasets/my_vest_data/test/image/`) must be resized to **576x768**.
-> - Input clothing images (located at `datasets/my_vest_data/test/cloth/`) can be of any size.
+> ⚠️ **Important Notes:**
+> - You must generate DensePose maps (`extract_densepose.py`) **before** generating upper-cloth masks (`extract_upper_cloth.py`).
+> - Input person images (located at `datasets/my_vest_data/test/image/`) must be resized to **576×768**.
+> - Input clothing images (located at `datasets/my_vest_data/test/cloth/`) can have any size.
 
 ### 4. Download Pretrained Model
 
@@ -104,7 +126,7 @@ Organize your dataset as follows:
 
 ```
 datasets/
-└── <DATASET_NAME>/
+└── <DATASET_NAME>/    # or test_joon/
     └── test/
         ├── image/
         ├── image-densepose/
