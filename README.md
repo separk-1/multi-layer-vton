@@ -60,7 +60,18 @@ You can simply run:
 sh preprocess.sh
 ```
 
-The `preprocess.sh` file internally runs the following two steps:
+The `preprocess.sh` file internally runs the following steps:
+
+- Step 0: Resize the input images to 576 × 768 using center-cropping:
+
+  ```bash
+  python resize.py \
+  --input datasets/test_cmu/test/image/woman.jpg \
+  --output datasets/test_cmu/test/image/woman.jpg \
+  --width 576 \
+  --height 768
+  ```
+
 
 - Step 1: Generate DensePose (pose map):
 
