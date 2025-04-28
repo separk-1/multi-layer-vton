@@ -73,29 +73,42 @@ def extract_upper_cloth(input_image_path, output_mask_path_jpg, output_mask_path
 
 # ====== Main script ======
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Upper cloth mask extraction script.")
-    parser.add_argument('--input', type=str, required=True, help='Path to input person image')
-    parser.add_argument('--output_jpg', type=str, required=True, help='Path to save mask (.jpg)')
-    parser.add_argument('--output_png', type=str, required=True, help='Path to save mask (.png)')
-    parser.add_argument('--densepose', type=str, default=None, help='Path to DensePose I.npy file')
+    parser = argparse.ArgumentParser(description="Upper cloth mask extraction script for a folder of images.")
+    parser.add_argument('--input_dir', type=str, required=True, help='Input directory containing person images')
+    parser.add_argument('--output_dir', type=str, required=True, help='Output directory to save masks')
+    parser.add_argument('--densepose_dir', type=str, default=None, help='Directory containing DensePose npy files (optional)')
     parser.add_argument('--naturality', type=int, default=1, help='Naturality of zipper line removal (1: natural, 0: straight)')
     parser.add_argument('--ratio', type=float, default=0.1, help='Ratio for zipper line removal')
     parser.add_argument('--vest', type=int, default=1, help='Vest mode (1: vest, 0: non-vest)')
     parser.add_argument('--vest_padding', type=int, default=10, help='Padding size for arms removal')
     args = parser.parse_args()
 
-    os.makedirs(os.path.dirname(args.output_jpg), exist_ok=True)
-    os.makedirs(os.path.dirname(args.output_png), exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
 
-    extract_upper_cloth(
-        input_image_path=args.input,
-        output_mask_path_jpg=args.output_jpg,
-        output_mask_path_png=args.output_png,
-        densepose_path=args.densepose,
-        naturality=args.naturality,
-        ratio=args.ratio,
-        vest=args.vest,
-        vest_padding=args.vest_padding
-    )
+    for filename in os.listdir(args.input_dir):
+        if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+            input_path = os.path.join(args.input_dir, filename)
+            output_jpg = os.path.join(args.output_dir, filename)
+            output_png = os.path.join(args.output_dir, os.path.splitext(filename)[0] + "_mask.png")
 
-    print(f"Done! Upper cloth mask saved to {args.output_jpg} and {args.output_png}")
+            densepose_path = None
+            if args.densepose_dir:
+                densepose_file = os.path.splitext(filename)[0] + ".npy"
+                densepose_path = os.path.join(args.densepose_dir, densepose_file)
+                if not os.path.exists(densepose_path):
+                    densepose_path = None  # Ignore if not found
+
+            extract_upper_cloth(
+                input_image_path=input_path,
+                output_mask_path_jpg=output_jpg,
+                output_mask_path_png=output_png,
+                densepose_path=densepose_path,
+                naturality=args.naturality,
+                ratio=args.ratio,
+                vest=args.vest,
+                vest_padding=args.vest_padding
+            )
+
+            print(f"Processed {filename}")
+
+    print(f"Done! Upper cloth masks saved to {args.output_dir}")

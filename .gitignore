@@ -1,5 +1,27 @@
-ckpt/*
+# Ignore model checkpoints
+ckpt/
+*.pkl
+*.pt
+*.ckpt
+*.npy
+*.npz
+
+# Ignore datasets and outputs
+datasets/
+result/
+evaluation/
+gradio_demo/
+generate_dummy/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Exceptions (force include)
 !ckpt/.gitkeep
-datasets/VITON-HD/*
-generate_dummy/*
-detectron2/projects/DensePose/ckpt/model_final_162be9.pkl
+!datasets/VTON-HD/get_dataset.py

@@ -28,15 +28,22 @@ def resize_and_crop_center(input_path, output_path, target_width, target_height)
 
     # Save the result
     img_cropped.save(output_path)
-    print(f"Saved center-cropped resized image to {output_path}")
+    print(f"Saved {output_path}")
+
+def process_directory(input_dir, output_dir, target_width, target_height):
+    for filename in os.listdir(input_dir):
+        if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+            input_path = os.path.join(input_dir, filename)
+            output_path = os.path.join(output_dir, filename)
+            resize_and_crop_center(input_path, output_path, target_width, target_height)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Resize and center-crop an image to the target size.")
-    parser.add_argument("--input", required=True, help="Path to the input image")
-    parser.add_argument("--output", required=True, help="Path to save the resized and cropped image")
-    parser.add_argument("--width", type=int, required=True, help="Target width of the output image")
-    parser.add_argument("--height", type=int, required=True, help="Target height of the output image")
+    parser = argparse.ArgumentParser(description="Resize and center-crop all images in a folder to the target size.")
+    parser.add_argument("--input_dir", required=True, help="Path to the input directory")
+    parser.add_argument("--output_dir", required=True, help="Path to the output directory")
+    parser.add_argument("--width", type=int, required=True, help="Target width of the output images")
+    parser.add_argument("--height", type=int, required=True, help="Target height of the output images")
 
     args = parser.parse_args()
 
-    resize_and_crop_center(args.input, args.output, args.width, args.height)
+    process_directory(args.input_dir, args.output_dir, args.width, args.height)
