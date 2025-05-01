@@ -206,7 +206,6 @@ This script will compute:
 - LPIPS (Perceptual Similarity)
 - SSIM (Structural Similarity)
 - CLIP-Image Similarity (Semantic Alignment)
-- FID (Image Realism)
 
 > ⚠️ **Note:** Make sure all images in `generated/` and `ground_truth/` are resized to the same resolution before running evaluation.
 
